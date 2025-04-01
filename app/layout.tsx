@@ -1,15 +1,13 @@
 import type React from "react"
 import "./globals.css"
-import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
-import { ClerkProvider } from '@clerk/nextjs'
+import { ClerkProvider } from "@clerk/nextjs"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "AuraAwaaz - Women's Health Companion",
-  description: "AI-powered women's health tracking and wellness insights",
+export const metadata = {
+  title: "AuraAwaaz - Your AI-powered women's health companion",
+  description: "Track your health, mood, and wellness with personalized insights",
 }
 
 export default function RootLayout({
@@ -18,13 +16,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>{children}</body>
+      </html>
+    </ClerkProvider>
   )
 }
 
