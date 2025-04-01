@@ -5,17 +5,37 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useAuth } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function Home() {
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, userId } = useAuth()
   const router = useRouter()
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false)
+
+  useEffect(() => {
+    if (isSignedIn && userId) {
+      // Check if user has completed onboarding
+      const onboardingCompleted = localStorage.getItem(`onboarding-${userId}`)
+      setHasCompletedOnboarding(onboardingCompleted === "true")
+    }
+  }, [isSignedIn, userId])
+
+  const handleDashboardClick = () => {
+    if (isSignedIn) {
+      if (hasCompletedOnboarding) {
+        router.push("/dashboard")
+      } else {
+        router.push("/onboarding")
+      }
+    }
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-pink-50 to-purple-50">
       <div className="w-full max-w-5xl flex flex-col items-center justify-center gap-6 text-center">
         <div className="mb-4">
           <h1 className="text-4xl font-bold tracking-tight text-purple-800 sm:text-5xl">
-            Aura<span className="text-pink-600">Awaaz</span>
+            Bloom<span className="text-pink-600">Buddy</span>
           </h1>
           <p className="mt-3 text-lg text-gray-600">Your personal AI-powered women's health companion</p>
         </div>
@@ -24,7 +44,7 @@ export default function Home() {
           <div className="hidden md:flex items-center justify-center">
             <div className="relative w-full h-[400px]">
               <Image
-                src="/placeholder.svg?height=400&width=400"
+                src="/womenwellness.jpg"
                 alt="Women's wellness illustration"
                 fill
                 className="object-contain"
@@ -45,19 +65,16 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   {isSignedIn ? (
-                    <Button
-                      className="w-full bg-purple-600 hover:bg-purple-700"
-                      onClick={() => router.push("/dashboard")}
-                    >
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleDashboardClick}>
                       Go to Dashboard
                     </Button>
                   ) : (
                     <>
                       <Button asChild variant="outline" className="w-full border-gray-300 hover:bg-purple-50">
-                        <Link href="/auth/login">Sign In</Link>
+                        <Link href="/auth/sign-in">Sign In</Link>
                       </Button>
                       <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                        <Link href="/auth/register">Create Account</Link>
+                        <Link href="/auth/sign-up">Create Account</Link>
                       </Button>
                     </>
                   )}
@@ -77,7 +94,7 @@ export default function Home() {
                     <Button
                       variant="outline"
                       className="w-full border-gray-300 hover:bg-purple-50"
-                      onClick={() => router.push("/auth/login?oauth=google")}
+                      onClick={() => router.push("/auth/sign-in?oauth=google")}
                     >
                       <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                         <path

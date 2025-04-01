@@ -1,13 +1,13 @@
-"use client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { SignUp } from "@clerk/nextjs";
+"use client"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+import { SignUp } from "@clerk/nextjs"
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get("redirect_url") || "/onboarding"
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-pink-50 to-purple-50">
@@ -37,5 +37,6 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
+

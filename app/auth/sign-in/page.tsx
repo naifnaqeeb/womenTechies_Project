@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { SignIn } from "@clerk/nextjs";
+import { useRouter, useSearchParams } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+import { SignIn } from "@clerk/nextjs"
 
 export default function LoginPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect_url") || "/dashboard";
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get("redirect_url") || "/dashboard"
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-pink-50 to-purple-50">
@@ -39,5 +39,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
+
