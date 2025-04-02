@@ -9,6 +9,7 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirectUrl = searchParams.get("redirect_url") || "/dashboard"
+  const oauthParam = searchParams.get("oauth")
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 bg-gradient-to-b from-pink-50 to-purple-50">
@@ -27,7 +28,7 @@ export default function LoginPage() {
             appearance={{
               layout: {
                 showOptionalFields: true,
-                socialButtonsPlacement: "bottom", // Optional
+                socialButtonsPlacement: "bottom",
               },
               variables: {
                 colorPrimary: "#9333ea", // Purple primary color
@@ -35,7 +36,14 @@ export default function LoginPage() {
             }}
             redirectUrl={redirectUrl}
             signUpUrl="/auth/register"
+            initialValues={{
+              emailAddress: searchParams.get("email") || "",
+            }}
+            path="/auth/login"
+            routing="path"
+            signInUrl="/auth/login"
           />
+
         </div>
       </div>
     </div>

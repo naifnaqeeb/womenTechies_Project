@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
@@ -15,13 +14,14 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
+import { CalendarIcon, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function OnboardingPage() {
   const router = useRouter()
   const { user, isLoaded } = useUser()
-
+  const { toast } = useToast()
   const [formData, setFormData] = useState({
     age: "",
     height: "",
@@ -31,42 +31,105 @@ export default function OnboardingPage() {
     birthControl: "",
     moodSwings: [] as string[],
   })
-
   const [date, setDate] = useState<Date>()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is loaded and if onboarding is already completed
+    // Check if user is loaded
     if (isLoaded) {
-      const onboardingCompleted = localStorage.getItem(`onboarding-${user?.id}`)
-      if (onboardingCompleted === "true") {
-        router.push("/dashboard")
+      if (!user) {
+        router.push("/")
+        return
       }
+
+      // Check if user has already completed onboarding
+      const checkUserHealth = async () => {
+        try {
+          const response = await fetch("/api/user-health")
+
+          // If response is not ok, handle the error but don't redirect
+          if (!response.ok) {
+            // If it's a 404 (user not found), that's expected for new users
+            if (response.status === 404) {
+              setIsLoading(false)
+              return
+            }
+
+            const errorText = await response.text()
+            console.error("API Error:", errorText)
+            setIsLoading(false)
+            return
+          }
+
+          const data = await response.json()
+
+          if (data.exists) {
+            // User has already completed onboarding, redirect to dashboard
+            router.push("/dashboard")
+          } else {
+            // User hasn't completed onboarding yet
+            setIsLoading(false)
+          }
+        } catch (error) {
+          console.error("Error checking user health data:", error)
+          setIsLoading(false)
+        }
+      }
+
+      checkUserHealth()
     }
   }, [isLoaded, user, router])
 
-  // Redirect if not loaded or no user
-  if (isLoaded && !user) {
-    router.push("/")
-    return null
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // In a real application, you would send this data to your backend
-    console.log("Form data submitted:", formData)
+    try {
+      // Validate form data
+      if (!formData.lastPeriodDate) {
+        toast({
+          title: "Missing information",
+          description: "Please select your last period date",
+          variant: "destructive",
+        })
+        setIsSubmitting(false)
+        return
+      }
 
-    // Mark onboarding as completed in localStorage
-    if (user?.id) {
-      localStorage.setItem(`onboarding-${user.id}`, "true")
+      // Send data to API
+      const response = await fetch("/api/user-health", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
 
-      // Store the form data (in a real app, this would go to a database)
-      localStorage.setItem(`user-health-data-${user.id}`, JSON.stringify(formData))
+      // If response is not ok, handle the error
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("API Error Response:", errorText)
+        throw new Error("Failed to save health data")
+      }
+
+      const data = await response.json()
+
+      toast({
+        title: "Profile saved",
+        description: "Your health profile has been saved successfully",
+      })
 
       // Redirect to dashboard
       router.push("/dashboard")
+    } catch (error: any) {
+      console.error("Error saving health data:", error)
+      toast({
+        title: "Error saving profile",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
     }
   }
 
@@ -78,6 +141,14 @@ export default function OnboardingPage() {
         return { ...prev, moodSwings: prev.moodSwings.filter((item) => item !== value) }
       }
     })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-pink-50 to-purple-50">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      </div>
+    )
   }
 
   return (
@@ -226,7 +297,14 @@ export default function OnboardingPage() {
             </div>
 
             <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save and Continue"}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save and Continue"
+              )}
             </Button>
           </form>
         </CardContent>

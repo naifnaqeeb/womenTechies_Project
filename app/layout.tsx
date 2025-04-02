@@ -1,13 +1,12 @@
 import type React from "react"
 import "./globals.css"
-import { Inter } from "next/font/google"
 import { ClerkProvider } from "@clerk/nextjs"
-
-const inter = Inter({ subsets: ["latin"] })
+import { ThemeProvider } from "@/components/theme-provider"
+import { Toaster } from "@/components/toaster"
 
 export const metadata = {
-  title: "BloomBuddy - Your AI-powered women's health companion",
-  description: "Track your health, mood, and wellness with personalized insights",
+  title: "AuraAwaaz - Women's Health Companion",
+  description: "Your personal AI-powered women's health companion",
 }
 
 export default function RootLayout({
@@ -18,7 +17,12 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body>
+          <ThemeProvider attribute="class" defaultTheme="light">
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </body>
       </html>
     </ClerkProvider>
   )

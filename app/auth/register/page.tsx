@@ -25,7 +25,7 @@ export default function RegisterPage() {
           <SignUp
             appearance={{
               layout: {
-                showOptionalFields: true, // Shows optional fields
+                showOptionalFields: true,
               },
               variables: {
                 colorPrimary: "#9333ea", // Purple primary color
@@ -33,6 +33,8 @@ export default function RegisterPage() {
             }}
             redirectUrl={redirectUrl}
             signInUrl="/auth/login"
+            path="/auth/register"
+            routing="path"
           />
         </div>
       </div>

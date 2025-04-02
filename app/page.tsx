@@ -6,27 +6,59 @@ import Image from "next/image"
 import { useAuth } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { Loader2 } from "lucide-react"
 
 export default function Home() {
   const { isSignedIn, userId } = useAuth()
   const router = useRouter()
-  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false)
+  const [isCheckingOnboarding, setIsCheckingOnboarding] = useState(false)
 
   useEffect(() => {
     if (isSignedIn && userId) {
-      // Check if user has completed onboarding
-      const onboardingCompleted = localStorage.getItem(`onboarding-${userId}`)
-      setHasCompletedOnboarding(onboardingCompleted === "true")
+      setIsCheckingOnboarding(true)
+
+      // Check if user has completed onboarding via API
+      const checkOnboarding = async () => {
+        try {
+          const response = await fetch("/api/user-health")
+
+          // Handle non-OK responses
+          if (!response.ok) {
+            // If it's a 404, user hasn't completed onboarding
+            if (response.status === 404) {
+              router.push("/onboarding")
+              return
+            }
+
+            // For other errors, log and stop loading
+            const errorText = await response.text()
+            console.error("API Error:", errorText)
+            setIsCheckingOnboarding(false)
+            return
+          }
+
+          const data = await response.json()
+
+          if (data.exists) {
+            router.push("/dashboard")
+          } else {
+            router.push("/onboarding")
+          }
+        } catch (error) {
+          console.error("Error checking onboarding status:", error)
+          setIsCheckingOnboarding(false)
+        }
+      }
+
+      checkOnboarding()
     }
-  }, [isSignedIn, userId])
+  }, [isSignedIn, userId, router])
 
   const handleDashboardClick = () => {
     if (isSignedIn) {
-      if (hasCompletedOnboarding) {
-        router.push("/dashboard")
-      } else {
-        router.push("/onboarding")
-      }
+      setIsCheckingOnboarding(true)
+      // The API check will handle the redirection
+      router.push("/dashboard")
     }
   }
 
@@ -35,7 +67,7 @@ export default function Home() {
       <div className="w-full max-w-5xl flex flex-col items-center justify-center gap-6 text-center">
         <div className="mb-4">
           <h1 className="text-4xl font-bold tracking-tight text-purple-800 sm:text-5xl">
-            Bloom<span className="text-pink-600">Buddy</span>
+            Aura<span className="text-pink-600">Awaaz</span>
           </h1>
           <p className="mt-3 text-lg text-gray-600">Your personal AI-powered women's health companion</p>
         </div>
@@ -44,7 +76,7 @@ export default function Home() {
           <div className="hidden md:flex items-center justify-center">
             <div className="relative w-full h-[400px]">
               <Image
-                src="/womenwellness.jpg"
+                src="/placeholder.svg?height=400&width=400"
                 alt="Women's wellness illustration"
                 fill
                 className="object-contain"
@@ -65,16 +97,27 @@ export default function Home() {
               <div className="space-y-4">
                 <div className="grid grid-cols-1 gap-4">
                   {isSignedIn ? (
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={handleDashboardClick}>
-                      Go to Dashboard
+                    <Button
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      onClick={handleDashboardClick}
+                      disabled={isCheckingOnboarding}
+                    >
+                      {isCheckingOnboarding ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        "Go to Dashboard"
+                      )}
                     </Button>
                   ) : (
                     <>
                       <Button asChild variant="outline" className="w-full border-gray-300 hover:bg-purple-50">
-                        <Link href="/auth/sign-in">Sign In</Link>
+                        <Link href="/auth/login">Sign In</Link>
                       </Button>
                       <Button asChild className="w-full bg-purple-600 hover:bg-purple-700">
-                        <Link href="/auth/sign-up">Create Account</Link>
+                        <Link href="/auth/register">Create Account</Link>
                       </Button>
                     </>
                   )}
@@ -94,7 +137,7 @@ export default function Home() {
                     <Button
                       variant="outline"
                       className="w-full border-gray-300 hover:bg-purple-50"
-                      onClick={() => router.push("/auth/sign-in?oauth=google")}
+                      onClick={() => router.push("/auth/login?oauth=google")}
                     >
                       <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                         <path
