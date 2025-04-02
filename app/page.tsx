@@ -76,7 +76,7 @@ export default function Home() {
           <div className="hidden md:flex items-center justify-center">
             <div className="relative w-full h-[400px]">
               <Image
-                src="/placeholder.svg?height=400&width=400"
+                src="/womenwellness.jpg"
                 alt="Women's wellness illustration"
                 fill
                 className="object-contain"

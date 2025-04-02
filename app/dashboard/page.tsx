@@ -33,15 +33,12 @@ export default function DashboardPage() {
       const fetchUserHealth = async () => {
         try {
           const response = await fetch("/api/user-health")
-
           if (!response.ok) {
             const errorText = await response.text()
             console.error("API Error:", errorText)
             throw new Error("Failed to fetch health data")
           }
-
           const data = await response.json()
-
           if (data.exists) {
             setHealthData(data.data)
           } else {
@@ -80,12 +77,14 @@ export default function DashboardPage() {
   // Get period duration in readable format
   const getPeriodDuration = () => {
     if (!healthData?.periodDuration) return "Not set"
+
     return healthData.periodDuration + " days"
   }
 
   // Get mood prediction based on cycle phase
   const getMoodPrediction = () => {
     if (!healthData?.lastPeriodDate) return "Unknown"
+
     const lastPeriod = new Date(healthData.lastPeriodDate)
     const today = new Date()
     const daysSinceLastPeriod = Math.floor((today.getTime() - lastPeriod.getTime()) / (1000 * 60 * 60 * 24))
@@ -137,7 +136,8 @@ export default function DashboardPage() {
           <Card className="bg-white border border-purple-100">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-purple-600 flex items-center">
-                <Calendar className="h-4 w-4 mr-2" /> Next Period
+                <Calendar className="h-4 w-4 mr-2" />
+                Next Period
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -149,7 +149,8 @@ export default function DashboardPage() {
           <Card className="bg-white border border-purple-100">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-purple-600 flex items-center">
-                <Clock className="h-4 w-4 mr-2" /> Period Duration
+                <Clock className="h-4 w-4 mr-2" />
+                Period Duration
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -161,7 +162,8 @@ export default function DashboardPage() {
           <Card className="bg-white border border-purple-100">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-purple-600 flex items-center">
-                <Smile className="h-4 w-4 mr-2" /> Mood Prediction
+                <Smile className="h-4 w-4 mr-2" />
+                Mood Prediction
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -173,7 +175,8 @@ export default function DashboardPage() {
           <Card className="bg-white border border-purple-100">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-purple-600 flex items-center">
-                <LineChart className="h-4 w-4 mr-2" /> Cycle Health
+                <LineChart className="h-4 w-4 mr-2" />
+                Cycle Health
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -189,19 +192,25 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-lg shadow-md border border-purple-100">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">Cycle Tracking</h2>
           <p className="text-gray-600 mb-4">Track your menstrual cycle and get personalized insights.</p>
-          <Button className="w-full bg-purple-600 hover:bg-purple-700">Track Now</Button>
+          <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => router.push("/cycle-tracking")}>
+            Track Now
+          </Button>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md border border-purple-100">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">Mood Journal</h2>
           <p className="text-gray-600 mb-4">Record your daily moods and identify patterns over time.</p>
-          <Button className="w-full bg-purple-600 hover:bg-purple-700">Log Mood</Button>
+          <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => router.push("/mood-journal")}>
+            Log Mood
+          </Button>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md border border-purple-100">
           <h2 className="text-xl font-semibold text-purple-700 mb-4">Fitness Tracker</h2>
           <p className="text-gray-600 mb-4">Monitor your fitness goals and track your progress.</p>
-          <Button className="w-full bg-purple-600 hover:bg-purple-700">Start Tracking</Button>
+          <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => router.push("/fitness-tracker")}>
+            Start Tracking
+          </Button>
         </div>
       </div>
 
